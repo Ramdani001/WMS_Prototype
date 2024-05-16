@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\User;
+use Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,6 +15,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // User::factory(10)->create();
+        User::create([
+            'name' => 'Admin',
+            'email' => 'admin@dev.com',
+            'username' => 'admin',
+            'password' => Hash::make('admin123'),
+            'group_user' => 1,
+            'alamat' => 'Bandung',
+            'kode_pos' => '40535',
+            'kelurahan' => 'cibereum',
+            'kecamatan' => 'Cimahi Selatan',
+            'provinsi' => 'Jawa Barat',
+            'no_hp' => '081224580918',
+        ]);
     }
 }
