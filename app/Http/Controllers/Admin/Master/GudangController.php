@@ -51,7 +51,6 @@ class GudangController extends Controller
         } catch (ModelNotFoundException $e) {
             return $this->sendError("Data tidak dapat ditemukan.");
         } catch (\Throwable $err) {
-            $this->errLog("Detail gudang sap", $err->getMessage());
             return $this->sendError("Kesalahan sistem saat proses pengambilan data, silahkan hubungi admin.");
         }
     }
@@ -88,17 +87,12 @@ class GudangController extends Controller
                 // Validation
                 $key = str_replace("gudang", "", decrypt($req->key));
                 $data = MasterGudang::findOrFail($key);
-                $newValue["Password"] = generatePassword($data->psap);
                 // Update Data
                 $data->update([
                     'nama_gudang' => $req->nama_gudang,
                     'alamat' => $req->alamat,
                     'kontak' => $req->kontak,
                 ]);
-                if(!empty($req->password)){
-                    $data->update(['psap' => $req->password]);
-                    $newValue["Password"] = generatePassword($req->password);
-                }
             }
             return $this->sendResponse(null, "Berhasil memproses data.");
         } catch (ModelNotFoundException $e) {

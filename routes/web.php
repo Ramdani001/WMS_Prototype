@@ -11,7 +11,12 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin','mid
     Route::get('/', function () { return redirect('admin/beranda'); });
     Route::get('beranda', 'HomeController@index')->name('index');
 
-    // Mster route
+    // Helper Route Untuk get value select Form
+    Route::get('getSelectSupplier', 'HelperController@getSelectSupplier')->name('getSelectSupplier');
+    Route::get('getSelectGudang', 'HelperController@getSelectGudang')->name('getSelectGudang');
+    Route::get('getSelectBarang', 'HelperController@getSelectBarang')->name('getSelectBarang');
+
+    // Master route
     Route::group(['prefix' => 'master', 'namespace' => 'Master', 'as' => 'master.','middleware' => ['permission:1,2']], function () {
         // Master Gudang
         Route::group(['prefix' => 'gudang', 'as' => 'gudang.','middleware' => ['permission:1']], function () {
@@ -28,6 +33,14 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin','mid
             Route::post('store', 'SupplierController@store')->name('store');
             Route::post('scopeData', 'SupplierController@scopeData')->name('scopeData');
             Route::post('destroy', 'SupplierController@destroy')->name('destroy');
+        });
+        // Master Barang
+        Route::group(['prefix' => 'barang', 'as' => 'barang.','middleware' => ['permission:1']], function () {
+            Route::get('/', 'BarangController@index')->name('index');
+            Route::post('detail', 'BarangController@detail')->name('detail');
+            Route::post('store', 'BarangController@store')->name('store');
+            Route::post('scopeData', 'BarangController@scopeData')->name('scopeData');
+            Route::post('destroy', 'BarangController@destroy')->name('destroy');
         });
     });
 });

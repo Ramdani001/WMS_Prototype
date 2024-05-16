@@ -2,14 +2,25 @@
 
 @section('css')
 <style>
-    #btn-add {
-        margin: 0px 0px 20px 15px;
+    #btn-add, #btn-add-multiple {
+        margin: 0px -10px 20px 15px;
     }
     .btn-group button {
         margin: 0px 4px;
     }
     .icon-big {
         font-size: 2.1em;
+    }
+    #pwInfo {
+        font-style: italic;
+        font-size: 12.5px;
+    }
+    .select2-container {
+        width: 100% !important;
+        padding: 0;
+    }
+    .swal-text {
+        text-align: center !important;
     }
 </style>
 @endsection
@@ -20,7 +31,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title">Master Supplier</h4>
+                    <h4 class="card-title">Barang</h4>
                 </div>
                 <div class="card-body">
                     <button type="button" id="btn-add" class="btn btn-primary btn-md">
@@ -31,9 +42,13 @@
                             <thead>
                                 <tr>
                                     <th width="40px">No</th>
-                                    <th>Kode Supplier</th>
-                                    <th>Nama supplier</th>
-                                    <th>Keterangan</th>
+                                    <th>Nama Barang</th>
+                                    <th>Kode</th>
+                                    <th>Supplier</th>
+                                    <th>Lokasi</th>
+                                    <th>Harga</th>
+                                    <th>Stok</th>
+                                    <th>Satuan</th>
                                     <th width="80px">Aksi</th>
                                 </tr>
                             </thead>
@@ -45,10 +60,10 @@
     </div>
 </div>
 
-<div class="modal fade" id="modalData" tabindex="-1" role="dialog" aria-labelledby="modalDataLabel" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+<div class="modal fade" id="modalData" role="dialog" aria-labelledby="modalDataLabel" aria-hidden="true" data-keyboard="false" data-backdrop="static">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
-            <form id="form-data" method="post" action="{{ route('admin.master.supplier.store') }}">
+            <form id="form-data" method="post" action="{{ route('admin.master.barang.store') }}">
               @csrf
               <input type="hidden" name="key" class="form-control" id="key-form">
                 <div class="modal-header">
@@ -56,16 +71,36 @@
                 </div>
                 <div class="modal-body" id="modal-body">
                     <div class="form-group">
-                        <label for="nama_supplier-form">supplier</label>
-                        <input type="text" name="nama_supplier" class="form-control" id="nama_supplier-form" placeholder="Masukan Nama supplier" required/>
+                        <label for="nama_barang-form">Nama Barang</label>
+                        <input type="text" name="nama_barang" class="form-control" id="nama_barang-form" placeholder="Masukan Nama Barang" required/>
                     </div>
                     <div class="form-group">
-                        <label for="kode_supplier-form">Kode Supplier</label>
-                        <input type="text" name="kode_supplier" class="form-control" id="kode_supplier-form" placeholder="Masukan Kode supplier" required/>
+                        <label for="kode_barang-form">Kode Barang</label>
+                        <input type="text" name="kode_barang" class="form-control" id="kode_barang-form" placeholder="Masukan Kode Barang" required/>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_supplier-form">Supplier</label>
+                        <select name="id_supplier" class="form-control" id="id_supplier-form"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_gudang-form">Gudang</label>
+                        <select name="id_gudang" class="form-control" id="id_gudang-form"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="stok-form">Stok</label>
+                        <input type="number" name="stok" class="form-control" id="stok-form" placeholder="Masukan Stok" required/>
+                    </div>
+                    <div class="form-group">
+                        <label for="harga-form">Harga</label>
+                        <input type="number" name="harga" class="form-control" id="harga-form" placeholder="Masukan Harga" required/>
+                    </div>
+                    <div class="form-group">
+                        <label for="satuan-form">satuan</label>
+                        <input type="text" name="satuan" class="form-control" id="satuan-form" placeholder="Masukan Satuan Barang" required/>
                     </div>
                     <div class="form-group">
                         <label for="keterangan-form">Keterangan</label>
-                        <input type="text" name="keterangan" class="form-control" id="keterangan-form" placeholder="Masukan Keterangan" required/>
+                        <input type="text" name="keterangan" class="form-control" id="keterangan-form" placeholder="Masukan Keterangan Barang" required/>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -81,43 +116,118 @@
 @section('js')
 <script>
     var dt;
+    var $gudangForm = $("#id_gudang-form");
+    var $supplierForm = $("#id_supplier-form");
     $(document).ready(function() {
+
+        $gudangForm.select2({
+            placeholder: "Pilih Gudang",
+            language: "id",
+            ajax: {
+                url: "{{route('admin.getSelectGudang')}}",
+                dataType: 'json',
+                delay: 500,
+                cache: true,
+                data: function (params) {
+                    return {
+                        search: params.term
+                    };
+                },
+                processResults: function (res) {
+                    return {
+                        results: $.map(res.data, function (item) {
+                            return {
+                                id: `${item.id}`,
+                                text: `${item.nama_gudang}`
+                            };
+                        })
+                    };
+                },
+                error: function (err, textStatus, errorThrown) {
+                    var message = err.responseJSON.message;
+                    notif("danger", "fas fa-exclamation", "Notifikasi Error", message, "error");
+                }
+            }
+        });
+
+        $supplierForm.select2({
+            placeholder:"Pilih Supplier",
+            allowClear:true,
+            language: "id",
+            ajax: {
+                url: "{{route('admin.getSelectSupplier')}}",
+                dataType: 'json',
+                delay: 500,
+                cache: true,
+                data: function (params) {
+                    return {
+                        search: params.term
+                    };
+                },
+                processResults: function (res) {
+                    return {
+                        results: $.map(res.data, function (item) {
+                            id = `${item.id}`;
+                            text = `${item.kode_supplier} - ${item.nama_supplier}`;
+                            return {
+                                id: id,
+                                text: text
+                            }
+                        })
+                    };
+                },
+                error: function (err, textStatus, errorThrown) {
+                    message = err.responseJSON.message;
+                    notif("danger","fas fa-exclamation","Notifikasi Error",message,"error");
+                }
+            }
+        });
+
         dt = $("#table-data").DataTable({
             processing: true,
             serverSide: true,
             ajax: {
-                url: "{{ route('admin.master.supplier.scopeData') }}",
+                url: "{{ route('admin.master.barang.scopeData') }}",
                 type: "post"
             },
             columns: [
                 { data: "DT_RowIndex", name: "DT_RowIndex", searchable: "false", orderable: "false" },
-                { data: "kode_supplier", name: "kode_supplier" },
-                { data: "nama_supplier", name: "nama_supplier" },
-                { data: "keterangan", name: "keterangan" },
+                { data: "nama_barang", name: "nama_barang" },
+                { data: "kode_barang", name: "kode_baranger" },
+                { data: "supplier", name: "supplier" },
+                { data: "lokasi", name: "lokasi" },
+                { data: "harga", name: "harga" },
+                { data: "stok", name: "stok" },
+                { data: "satuan", name: "satuan" },
                 { data: "action", name: "action", searchable: "false", orderable: "false" }
             ],
             order: [[ 1, "asc" ]],
         });
 
         $("#btn-add").on("click",function(){
-            $("#modalDataLabel").text("Tambah Data supplier");
+            $("#modalDataLabel").text("Tambah Data Barang");
             $("#modalData").modal("show");
         });
 
         $("body").on("click",".btn-edit",function(){
-            $("#modalDataLabel").text("Ubah Data supplier");
-            $("#password-form").prop("required",false);
-            $("#pwInfo").removeClass("hidden");
+            $("#modalDataLabel").text("Ubah Data Barang");
             formLoading("#form-data","#modal-body",true);
             let key = $(this).data("key");
             $.ajax({
-                url: "{{ route('admin.master.supplier.detail') }}",
+                url: "{{ route('admin.master.barang.detail') }}",
                 type: "POST",
                 data: {key:key},
                 success:function(res){
                     $("#key-form").val(key);
                     $.each(res.data,function(k,v){
-                        $(`#${k}-form`).val(v);
+                        console.log(res.data);
+                        if(k == 'id_gudang' && v !== '-'){
+                            $gudangForm.append(`<option value="${v}" selected="selected">${res.data.gudang.nama_gudang}</option>`);
+                        }
+                        if(k == 'id_supplier' && v !== '-'){
+                            $supplierForm.append(`<option value="${v}" selected="selected">${res.data.supplier.kode_supplier} - ${res.data.supplier.nama_supplier}</option>`);
+                        }
+                        $(`#${k}-form`).val(v).trigger("change");
                     });
                 },
                 error:function(err, status, message){
@@ -153,7 +263,7 @@
                 if (willDelete) {
                     notifLoading("Jangan tinggalkan halaman ini sampai proses penghapusan selesai !");
                     $.ajax({
-                        url: "{{ route('admin.master.supplier.destroy') }}",
+                        url: "{{ route('admin.master.barang.destroy') }}",
                         type: "POST",
                         data: {key:key},
                         success:function(res){

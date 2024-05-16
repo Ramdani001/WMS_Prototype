@@ -4,32 +4,40 @@ namespace App\Http\Controllers\Admin\Master;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\MasterBarang;
 use App\Models\MasterSupplier;
+use App\Models\MasterGudang;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use DataTables;
 use Validator;
 
-class SupplierController extends Controller
+class BarangController extends Controller
 {
     /**
-     * Return sap supplier settings view
+     * Return sap barang settings view
      */
     public function index()
     {
-        return view('admin.master.supplier.index');
+        return view('admin.master.barang.index');
     }
 
     /**
-     * Return sap supplier data for datatables
+     * Return sap barang data for datatables
      */
     public function scopeData(Request $req)
     {
-        $data = MasterSupplier::select('*');
+        $data = Masterbarang::select('*');
         return DataTables::of($data)
                 ->addIndexColumn()
                 ->removeColumn('id')
+                ->addColumn('supplier', function($val) {
+                    return $val->supplier->nama_supplier;
+                })
+                ->addColumn('lokasi', function($val) {
+                    return $val->gudang->nama_gudang;
+                })
                 ->addColumn('action', function($val) {
-                    $key = encrypt("supplier".$val->id);
+                    $key = encrypt("barang".$val->id);
                     return '<div class="btn-group">'.
                                 '<button class="btn btn-warning btn-sm btn-edit" data-key="'.$key.'" title="Ubah Data"><i class="fas fa-pen"></i></button>'.
                                 '<button class="btn btn-danger btn-sm btn-delete" data-key="'.$key.'" title="Hapus Data"><i class="fas fa-trash-alt"></i></button>'.
@@ -40,13 +48,13 @@ class SupplierController extends Controller
     }
 
     /**
-     * Return sap supplier settings detail
+     * Return sap barang settings detail
      */
     public function detail(Request $req)
     {
         try {
-            $key = str_replace("supplier", "", decrypt($req->key));
-            $data = MasterSupplier::select('*')->whereId($key)->firstOrFail();
+            $key = str_replace("barang", "", decrypt($req->key));
+            $data = Masterbarang::select('*')->whereId($key)->with('supplier')->with('gudang')->firstOrFail();
             return $this->sendResponse($data, "Berhasil mengambil data.");
         } catch (ModelNotFoundException $e) {
             return $this->sendError("Data tidak dapat ditemukan.");
@@ -57,7 +65,7 @@ class SupplierController extends Controller
 
 
     /**
-     * Store create or update sap supplier settings
+     * Store create or update sap barang settings
      */
     public function store(Request $req)
     {
@@ -65,8 +73,13 @@ class SupplierController extends Controller
       
         $validator = Validator::make($req->input(), [
             'key' => 'nullable|string',
-            'kode_supplier' => 'required|string',
-            'nama_supplier' => 'required|string',
+            'nama_barang' => 'required|string',
+            'kode_barang' => 'required|string',
+            'id_supplier' => 'required|string',
+            'id_gudang' => 'required|string',
+            'stok' => 'required|string',
+            'harga' => 'required|string',
+            'satuan' => 'required|string',
             'keterangan' => 'required|string',
         ]);
 
@@ -74,43 +87,53 @@ class SupplierController extends Controller
             return $this->sendError("Error validation", $validator->errors());
         }
 
-        try {
+        // try {
             if(empty($req->key)){
                 // Create Data
-                $data = MasterSupplier::create([
-                    'kode_supplier' => $req->kode_supplier,
-                    'nama_supplier' => $req->nama_supplier,
+                $data = Masterbarang::create([
+                    'nama_barang' => $req->nama_barang,
+                    'kode_barang' => $req->kode_barang,
+                    'id_supplier' => $req->id_supplier,
+                    'id_gudang' => $req->id_gudang,
+                    'stok' => $req->stok,
+                    'harga' => $req->harga,
+                    'satuan' => $req->satuan,
                     'keterangan' => $req->keterangan,
                 ]);
                 // Save Log
             } else {
                 // Validation
-                $key = str_replace("supplier", "", decrypt($req->key));
-                $data = MasterSupplier::findOrFail($key);
+                $key = str_replace("barang", "", decrypt($req->key));
+                $data = Masterbarang::findOrFail($key);
                 // Update Data
                 $data->update([
-                    'kode_supplier' => $req->kode_supplier,
-                    'nama_supplier' => $req->nama_supplier,
+                    'nama_barang' => $req->nama_barang,
+                    'kode_barang' => $req->kode_barang,
+                    'id_supplier' => $req->id_supplier,
+                    'id_gudang' => $req->id_gudang,
+                    'stok' => $req->stok,
+                    'harga' => $req->harga,
+                    'satuan' => $req->satuan,
                     'keterangan' => $req->keterangan,
                 ]);
             }
             return $this->sendResponse(null, "Berhasil memproses data.");
-        } catch (ModelNotFoundException $e) {
-            return $this->sendError("Data tidak dapat ditemukan.");
-        } catch (\Throwable $err) {
-            return $this->sendError("Kesalahan sistem saat proses penyimpanan data, silahkan hubungi admin");
-        }
+        // } catch (ModelNotFoundException $e) {
+        //     return $this->sendError("Data tidak dapat ditemukan.");
+        // } catch (\Throwable $err) {
+        //     return $this->sendError("Kesalahan sistem saat proses penyimpanan data, silahkan hubungi admin");
+        // }
     }
 
     /**
-     * Delete sap supplier data from db
+     * Delete sap barang data from db
      */
     public function destroy(Request $req)
     {
         try {
             // Validation
-            $key = str_replace("supplier", "", decrypt($req->key));
-            $data = MasterSupplier::findOrFail($key);
+            $key = str_replace("barang", "", decrypt($req->key));
+            $data = Masterbarang::findOrFail($key);
             // Delete Process
             $data->delete();
             return $this->sendResponse(null, "Berhasil menghapus data.");

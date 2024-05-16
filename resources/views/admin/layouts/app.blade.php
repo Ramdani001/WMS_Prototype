@@ -40,7 +40,7 @@
 			<footer class="footer">
 				<div class="container-fluid">
 					<div class="copyright ml-auto">
-						Copyright &copy; 2022 Central Developer. All Rights Reserved</a>
+						Copyright &copy; 2024</a>
 					</div>				
 				</div>
 			</footer>

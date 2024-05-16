@@ -13,12 +13,12 @@ class MasterBarang extends Model
 
     public function supplier()
     {
-        return $this->belongsTo(MsterSupplier::class, 'id_supplier');
+        return $this->belongsTo(MasterSupplier::class, 'id_supplier');
     }
 
     public function gudang()
     {
-        return $this->belongsTo(MsterGudang::class, 'id_gudang');
+        return $this->belongsTo(MasterGudang::class, 'id_gudang');
     }
     
 }
