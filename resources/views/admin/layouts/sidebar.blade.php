@@ -41,13 +41,21 @@
                     <h4 class="text-section">Transaksi</h4>
                 </li>
                 @if(permission([1,2,3,5]))
-                
-                <li class="nav-item {{ request()->is('admin/transaksi/purchasing') || request()->is('admin/transaksi/purchasing/*') ? 'active' : 'Tidak' }}">
-                    <a href="{{ route('admin.master.purchasing.index') }}">
+                 
+                <li class="nav-item {{ request()->is('admin/master/purchasing') || request()->is('admin/master/purchasing/*') ? 'active' : '' }}" >
+                    <a style="cursor: pointer;" href="{{ route('admin.master.purchasing.index') }}">
                         <i class="fas fa-clipboard-list"></i>
-                        <p>Purchasing Order</p>
+                        <p>List PO</p>
                     </a>
-                </li>
+
+                </li> 
+                {{-- <li class="nav-item {{ request()->is('admin/master/tambahPO') || request()->is('admin/master/tambahPO/*') ? 'active' : '' }}" >
+                    <a style="cursor: pointer;" href="{{ route('admin.master.tambahPO.index') }}">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>Tambah PO</p>
+                    </a>
+
+                </li>  --}}
                 <li class="nav-item {{ request()->is('admin/transaksi/pengiriman') || request()->is('admin/transaksi/pengiriman/*') ? 'active' : '' }}">
                     <a href="{{ route('admin.master.supplier.index') }}">
                         <i class="fas fa-truck"></i>

@@ -69,15 +69,85 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
+                    <div>
+                        <a href="{{ route('admin.master.purchasing.index') }}" class="btn btn-secondary">
+                            <i class="fa-solid fa-backward-step"></i>
+                            Back
+                        </a>
+                    </div>
                     <h4 class="card-title">Tambah PO</h4>
                 </div>
                 <div class="card-body">
 
-                   
+                    <div class="container d-flex flex-wrap justify-content-between">
+                       <div class="text-width mb-3">
+                        <label for="formFile" class="form-label pb-1">Customer</label>
+                        <select name="id_customer" class="form-control" id="id_customer-form"></select>
+                    </div>
+                       {{--  --}}
+                        <div class="text-width mb-3">
+                            <label for="formFile" class="form-label pb-1">No 1-10</label>
+                            <input class="form-control" type="text" value="" aria-label="readonly input example" placeholder="No. 1-10" readonly>
+                        </div>
+                        {{--  --}}
+                        <div class="text-width mb-3">
+                            <label for="formFile" class="form-label pb-1">Nama Customer</label>
+                            <input class="form-control" type="text" value="" aria-label="readonly input example" placeholder="Nama Customer" readonly>
+                        </div>
+                        {{--  --}}
+                        <div class="text-width mb-3">
+                            <label for="formFile" class="form-label pb-1">Email</label>
+                            <input class="form-control" type="email" value="" aria-label="readonly input example" placeholder="Alamat Email" readonly>
+                        </div>
+                        {{--  --}}
+                        <div class="text-width mb-3">
+                            <label for="formFile" class="form-label pb-1">Alamat</label>
+                            <input class="form-control" type="text" value="" aria-label="readonly input example" placeholder="Alamat" readonly>
+                        </div>
+                        {{--  --}}
+                        <div class="text-width mb-3">
+                            <label for="formFile" class="form-label pb-1">Kode Pos</label>
+                            <input class="form-control" type="text" value="" aria-label="readonly input example" placeholder="Kode Pos" readonly>
+                        </div>
+                        {{--  --}}
+                        <div class="text-width mb-3">
+                            <label for="formFile" class="form-label pb-1">Kota</label>
+                            <input class="form-control" type="text" value="" aria-label="readonly input example" placeholder="Kota" readonly>
+                        </div>
+                        {{--  --}}
+                        <div class="text-width mb-3">
+                            <label for="formFile" class="form-label pb-1">Nama Lengkap</label>
+                            <input class="form-control" type="text" value="" aria-label="readonly input example" placeholder="Provinsi" readonly>
+                        </div>
+                        {{--  --}}
+                        <div class="text-width mb-3">
+                            <label for="formFile" class="form-label pb-1">Kelurahan</label>
+                            <input class="form-control" type="text" value="" aria-label="readonly input example" placeholder="Kelurahan" readonly>
+                        </div>
+                        {{--  --}}
+                        <div class="text-width mb-3">
+                            <label for="formFile" class="form-label pb-1">Kecamatan</label>
+                            <input class="form-control" type="text" value="" aria-label="readonly input example" placeholder="Kecamatan" readonly>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="d-flex flex-wrap justify-content-between">
+                        {{--  --}}
+                        <div class="text-width mb-3">
+                            <label for="formFile" class="form-label pb-1">No. PO</label>
+                            <input class="form-control" type="text" value="" aria-label="No.PO" placeholder="No. PO" >
+                        </div>
+                        {{--  --}}
+                        <div class="text-width mb-3">
+                            <label for="formFile" class="form-label pb-1">Tanggal</label>
+                            <input class="form-control" type="date" value="" aria-label=" input example" placeholder="Tanggal" >
+                        </div>
+                    </div>
+
                     <div class="container d-flex justify-content-end mt-3">
-                        <a href="{{ route('admin.master.tambahPO.index') }}" type="button" class="btn btn-primary btn-md">
+                        <button type="button" id="btn-add" class="btn btn-primary btn-md">
                             Tambah Data
-                        </a>
+                        </button>
                     </div>
 
                     <div class="table-responsive">
