@@ -210,27 +210,6 @@
             }
         });
 
-        dt = $("#table-data").DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: "{{ route('admin.master.barang.scopeData') }}",
-                type: "post"
-            },
-            columns: [
-                { data: "DT_RowIndex", name: "DT_RowIndex", searchable: "false", orderable: "false" },
-                { data: "nama_barang", name: "nama_barang" },
-                { data: "kode_barang", name: "kode_barang" },
-                { data: "supplier", name: "supplier" },
-                { data: "lokasi", name: "lokasi" },
-                { data: "harga", name: "harga" },
-                { data: "stok", name: "stok" },
-                { data: "satuan", name: "satuan" },
-                { data: "action", name: "action", searchable: "false", orderable: "false" }
-            ],
-            order: [[ 1, "asc" ]],
-        });
-
         dt = $("#table-list").DataTable({
             processing: true,
             serverSide: true,
@@ -253,82 +232,6 @@
         $("#btn-add").on("click",function(){
             $("#modalDataLabel").text("List Barang Barang");
             $("#modalData").modal("show");
-        });
-
-        $("body").on("click",".btn-edit",function(){
-            $("#modalDataLabel").text("Ubah Data Barang");
-            formLoading("#form-data","#modal-body",true);
-            let key = $(this).data("key");
-            $.ajax({
-                url: "{{ route('admin.master.barang.detail') }}",
-                type: "POST",
-                data: {key:key},
-                success:function(res){
-                    $("#key-form").val(key);
-                    $.each(res.data,function(k,v){
-                        console.log(res.data);
-                        if(k == 'id_gudang' && v !== '-'){
-                            $gudangForm.append(`<option value="${v}" selected="selected">${res.data.gudang.nama_gudang}</option>`);
-                        }
-                        if(k == 'id_supplier' && v !== '-'){
-                            $customerForm.append(`<option value="${v}" selected="selected">${res.data.supplier.kode_supplier} - ${res.data.supplier.nama_supplier}</option>`);
-                        }
-                        $(`#${k}-form`).val(v).trigger("change");
-                    });
-                },
-                error:function(err, status, message){
-                    response = err.responseJSON;
-                    message = (typeof response != "undefined") ? response.message : message;
-                    notif("danger","fas fa-exclamation","Notifikasi Error",message,"error");
-                },
-                complete:function(){
-                    formLoading("#form-data","#modal-body",false);
-                }
-            });
-            $("#modalData").modal("show");
-        });
-
-        $("body").on("click",".btn-delete",function(){
-            let key = $(this).data("key");
-            swal({
-                title: "Apakah anda yakin?",
-                text: "Data yang dihapus tidak akan bisa dikembalikan!",
-                icon: "warning",
-                buttons:{
-                    cancel: {
-                        visible: true,
-                        text : 'Batal',
-                        className: 'btn btn-danger'
-                    },
-                    confirm: {
-                        text : 'Yakin',
-                        className : 'btn btn-primary'
-                    }
-                }
-            }).then((willDelete) => {
-                if (willDelete) {
-                    notifLoading("Jangan tinggalkan halaman ini sampai proses penghapusan selesai !");
-                    $.ajax({
-                        url: "{{ route('admin.master.barang.destroy') }}",
-                        type: "POST",
-                        data: {key:key},
-                        success:function(res){
-                            notif("success","fas fa-check","Notifikasi Progress",res.message,"done");
-                            dt.ajax.reload(null, false);
-                        },
-                        error:function(err, status, message){
-                            response = err.responseJSON;
-                            message = (typeof response != "undefined") ? response.message : message;
-                            notif("danger","fas fa-exclamation","Notifikasi Error",message,"error");
-                        },
-                        complete:function(){
-                            setTimeout(() => {
-                                loadNotif.close();
-                            }, 1000);
-                        }
-                    });
-                }
-            });
         });
 
         $("#modalData").on("hidden.bs.modal",function(){
