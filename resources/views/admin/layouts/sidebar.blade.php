@@ -41,8 +41,9 @@
                     <h4 class="text-section">Transaksi</h4>
                 </li>
                 @if(permission([1,2,3,5]))
-                <li class="nav-item {{ request()->is('admin/transaksi/po') || request()->is('admin/transaksi/po/*') ? 'active' : '' }}">
-                    <a href="{{ route('admin.master.gudang.index') }}">
+                
+                <li class="nav-item {{ request()->is('admin/transaksi/purchasing') || request()->is('admin/transaksi/purchasing/*') ? 'active' : 'Tidak' }}">
+                    <a href="{{ route('admin.master.purchasing.index') }}">
                         <i class="fas fa-clipboard-list"></i>
                         <p>Purchasing Order</p>
                     </a>

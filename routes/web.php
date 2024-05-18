@@ -42,5 +42,15 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin','mid
             Route::post('scopeData', 'BarangController@scopeData')->name('scopeData');
             Route::post('destroy', 'BarangController@destroy')->name('destroy');
         });
+        // Master PO
+        Route::group(['prefix' => 'purchasing', 'as' => 'purchasing.','middleware' => ['permission:1']], function () {
+            Route::get('/', 'PurchasingController@index')->name('index');
+            Route::post('detail', 'PurchasingController@detail')->name('detail');
+            Route::post('store', 'PurchasingController@store')->name('store');
+            Route::post('scopeData', 'PurchasingController@scopeData')->name('scopeData');
+            Route::post('scopeList', 'PurchasingController@scopeList')->name('scopeList');
+            Route::post('destroy', 'PurchasingController@destroy')->name('destroy');
+        });
     });
 });
+ 
