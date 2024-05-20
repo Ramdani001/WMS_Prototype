@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
             'kode_pos' => '40535',
             'kelurahan' => 'cibereum',
             'kecamatan' => 'Cimahi Selatan',
+            'kota' => 'Cimahi',
             'provinsi' => 'Jawa Barat',
             'no_hp' => '081224580918',
         ]);

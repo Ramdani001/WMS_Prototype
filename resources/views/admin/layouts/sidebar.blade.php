@@ -33,6 +33,12 @@
                         <p>Barang</p>
                     </a>
                 </li>
+                <li class="nav-item {{ request()->is('admin/master/customer') || request()->is('admin/master/customer/*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.master.customer.index') }}">
+                        <i class="fas fa-user"></i>
+                        <p>Customer</p>
+                    </a>
+                </li>
                 @endif
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">
@@ -42,8 +48,8 @@
                 </li>
                 @if(permission([1,2,3,5]))
                  
-                <li class="nav-item {{ request()->is('admin/master/purchasing') || request()->is('admin/master/purchasing/*') ? 'active' : '' }}" >
-                    <a style="cursor: pointer;" href="{{ route('admin.master.purchasing.index') }}">
+                <li class="nav-item {{ request()->is('admin/transaksi/po') || request()->is('admin/transaksi/po/*') ? 'active' : '' }}" >
+                    <a style="cursor: pointer;" href="{{ route('admin.transaksi.po.index') }}">
                         <i class="fas fa-clipboard-list"></i>
                         <p>List PO</p>
                     </a>

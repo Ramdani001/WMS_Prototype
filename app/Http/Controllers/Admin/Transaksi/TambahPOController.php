@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin\Master;
+namespace App\Http\Controllers\Admin\Transaksi;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -11,14 +11,14 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use DataTables;
 use Validator;
 
-class PurchasingController extends Controller
+class TambahPOController extends Controller
 {
     /**
      * Return sap barang settings view
      */
     public function index()
     {
-        return view('admin.transaksi.purchasing.index');
+        return view('admin.transaksi.purchasing.tambahPO');
     }
 
     /**
@@ -165,10 +165,6 @@ class PurchasingController extends Controller
         } catch (\Throwable $err) {
             return $this->sendError("Kesalahan sistem saat proses penghapusan data, silahkan hubungi admin");
         }
-    }
-
-    public function tambahPO(){
-        return view('admin.transaksi.purchasing.tambahPO');
     }
 
 }

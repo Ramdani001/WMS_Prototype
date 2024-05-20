@@ -15,6 +15,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin','mid
     Route::get('getSelectSupplier', 'HelperController@getSelectSupplier')->name('getSelectSupplier');
     Route::get('getSelectGudang', 'HelperController@getSelectGudang')->name('getSelectGudang');
     Route::get('getSelectBarang', 'HelperController@getSelectBarang')->name('getSelectBarang');
+    Route::get('getSelectCustomer', 'HelperController@getSelectCustomer')->name('getSelectCustomer');
 
     // Master route
     Route::group(['prefix' => 'master', 'namespace' => 'Master', 'as' => 'master.','middleware' => ['permission:1,2']], function () {
@@ -42,10 +43,22 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin','mid
             Route::post('scopeData', 'BarangController@scopeData')->name('scopeData');
             Route::post('destroy', 'BarangController@destroy')->name('destroy');
         });
+         // Master Customer
+         Route::group(['prefix' => 'customer', 'as' => 'customer.','middleware' => ['permission:1']], function () {
+            Route::get('/', 'CustomerController@index')->name('index');
+            Route::post('detail', 'CustomerController@detail')->name('detail');
+            Route::post('store', 'CustomerController@store')->name('store');
+            Route::post('scopeData', 'CustomerController@scopeData')->name('scopeData');
+            Route::post('destroy', 'CustomerController@destroy')->name('destroy');
+        });
+    });
 
-        // List PO
-        Route::group(['prefix' => 'purchasing', 'as' => 'purchasing.','middleware' => ['permission:1']], function () {
+    // Transaksi Route
+    Route::group(['prefix' => 'transaksi', 'namespace' => 'Transaksi', 'as' => 'transaksi.','middleware' => ['permission:1,2']], function () {
+         // List PO
+         Route::group(['prefix' => 'po', 'as' => 'po.','middleware' => ['permission:1']], function () {
             Route::get('/', 'PurchasingController@index')->name('index');
+            Route::get('create', 'PurchasingController@create')->name('create');
             Route::post('detail', 'PurchasingController@detail')->name('detail');
             Route::post('store', 'PurchasingController@store')->name('store');
             Route::post('scopeData', 'PurchasingController@scopeData')->name('scopeData');
@@ -53,16 +66,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin','mid
             Route::post('destroy', 'PurchasingController@destroy')->name('destroy');
         });
         
-        // Tambah PO
-        Route::group(['prefix' => 'tambahPO', 'as' => 'tambahPO.','middleware' => ['permission:1']], function () {
-            Route::get('/', 'tambahPOController@index')->name('index');
-            Route::post('detail', 'tambahPOController@detail')->name('detail');
-            Route::post('store', 'tambahPOController@store')->name('store');
-            Route::post('scopeData', 'tambahPOController@scopeData')->name('scopeData');
-            Route::post('scopeList', 'tambahPOController@scopeList')->name('scopeList');
-            Route::post('destroy', 'tambahPOController@destroy')->name('destroy');
-        });
-
     });
+
 });
  

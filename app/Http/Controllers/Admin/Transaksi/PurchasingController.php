@@ -1,40 +1,41 @@
 <?php
 
-namespace App\Http\Controllers\Admin\Master;
+namespace App\Http\Controllers\Admin\Transaksi;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\MasterBarang;
-use App\Models\MasterSupplier;
-use App\Models\MasterGudang;
+use App\Models\Order;
+use App\Models\Masterbarang;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use DataTables;
 use Validator;
 
-class TambahPOController extends Controller
+class PurchasingController extends Controller
 {
-    /**
-     * Return sap barang settings view
-     */
+   
     public function index()
     {
+        return view('admin.transaksi.purchasing.index');
+    }
+
+    public function create(){
         return view('admin.transaksi.purchasing.tambahPO');
     }
 
-    /**
-     * Return sap barang data for datatables
-     */
     public function scopeData(Request $req)
     {
-        $data = Masterbarang::select('*');
+        $data = Order::select('*');
         return DataTables::of($data)
                 ->addIndexColumn()
                 ->removeColumn('id')
-                ->addColumn('supplier', function($val) {
-                    return $val->supplier->nama_supplier;
+                ->addColumn('customer', function($val) {
+                    return "Customer";
                 })
-                ->addColumn('lokasi', function($val) {
-                    return $val->gudang->nama_gudang;
+                ->addColumn('harga', function($val) {
+                    return "Harga";
+                })
+                ->addColumn('status_po', function($val) {
+                    return "Status Po";
                 })
                 ->addColumn('action', function($val) {
                     $key = encrypt("barang".$val->id);
@@ -62,17 +63,19 @@ class TambahPOController extends Controller
             })
             ->addColumn('action', function($val) {
                 $key = encrypt("barang".$val->id);
-                return '<div class="d-flex justify-content-center">
-                                    <input class="form-check-input mt-0" type="checkbox" data-key="'.$key.'" value="'.$key.'" aria-label="Checkbox for following text input">
-                                </div>';
+                $jsonValue = json_encode($val);
+                $base64Value = base64_encode($jsonValue);
+                // return '<div class="d-flex justify-content-center">
+                //             // <input class="form-check-input mt-0" type="checkbox" data-key="'.$key.'" value="'.$key.'" aria-label="Checkbox for following text input">
+                //         </div>';
+                return '<div class="btn-group">'.
+                            '<button class="btn btn-primary btn-md btn-primary" data-key="'.$key.'" title="Tambah Data" onclick=appendBarang("'.$base64Value.'") type="button">Pilih</button>'.
+                        '</div>';
             })
             ->rawColumns(['action'])
             ->make(true);
     }
 
-    /**
-     * Return sap barang settings detail
-     */
     public function detail(Request $req)
     {
         try {
@@ -87,12 +90,11 @@ class TambahPOController extends Controller
     }
 
 
-    /**
-     * Store create or update sap barang settings
-     */
     public function store(Request $req)
     {
         $pwRules = 'nullable';
+
+        dd($req->all());
       
         $validator = Validator::make($req->input(), [
             'key' => 'nullable|string',
@@ -148,9 +150,6 @@ class TambahPOController extends Controller
         // }
     }
 
-    /**
-     * Delete sap barang data from db
-     */
     public function destroy(Request $req)
     {
         try {
@@ -166,5 +165,4 @@ class TambahPOController extends Controller
             return $this->sendError("Kesalahan sistem saat proses penghapusan data, silahkan hubungi admin");
         }
     }
-
 }
