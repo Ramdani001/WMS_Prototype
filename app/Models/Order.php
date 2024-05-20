@@ -13,11 +13,11 @@ class Order extends Model
 
     public function customer()
     {
-        return $this->belongsTo(User::class, 'customer_id');
+        return $this->hasOne(User::class, 'id', 'customer_id');
     }
 
     public function orderDetail()
     {
-        return $this->hasMany(OrderDetail::class, 'nomor_po');
+        return $this->hasMany(OrderDetail::class, 'nomor_po', 'nomor_po');
     }
 }

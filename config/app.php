@@ -176,7 +176,7 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         // Barryvdh\Snappy\ServiceProvider::class,
-        // Barryvdh\DomPDF\ServiceProvider::class,
+        Barryvdh\DomPDF\ServiceProvider::class,
 
     ],
 
@@ -236,7 +236,7 @@ return [
         // Library Ubah docx ke pdf 
         // 'SnappyImage' => Barryvdh\Snappy\Facades\SnappyImage::class,
         // 'SnappyPdf' => Barryvdh\Snappy\Facades\SnappyPdf::class,
-        // 'PDF' => Barryvdh\DomPDF\Facade::class,
+        'PDF' => Barryvdh\DomPDF\Facade::class,
     ],
 
 ];

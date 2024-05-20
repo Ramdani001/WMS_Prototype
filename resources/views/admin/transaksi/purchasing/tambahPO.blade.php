@@ -106,7 +106,7 @@
                             <input class="form-control" type="text" value="" aria-label="readonly input example" placeholder="Kota" id="kota" readonly>
                         </div>
                         <div class="text-width mb-3">
-                            <label for="formFile" class="form-label pb-1">Nama Lengkap</label>
+                            <label for="formFile" class="form-label pb-1">Provinsi</label>
                             <input class="form-control" type="text" value="" aria-label="readonly input example" placeholder="Provinsi" id="provinsi" readonly>
                         </div>
                         <div class="text-width mb-3">
@@ -246,8 +246,8 @@
                 $("#customer").val(selectedCustomer.name);
                 $("#pos").val(selectedCustomer.kode_pos);
                 $("#alamat").val(selectedCustomer.alamat);
-                $("#provinsi").val(selectedCustomer.kota);
-                $("#kota").val(selectedCustomer.provinsi);
+                $("#provinsi").val(selectedCustomer.provinsi);
+                $("#kota").val(selectedCustomer.kota);
                 $("#kecamatan").val(selectedCustomer.kelurahan);
                 $("#kelurahan").val(selectedCustomer.kecamatan);
             } else {
@@ -384,10 +384,10 @@
             type: 'POST',
             data: formData,
             success: function(response) {
-                // Handle response
+                window.location.href = "{{ url('admin/transaksi/po') }}";
             },
             error: function(xhr, status, error) {
-                // Handle error
+                notif("danger","fas fa-exclamation","Gagal Membuat PO !","error");
             }
         });
     }

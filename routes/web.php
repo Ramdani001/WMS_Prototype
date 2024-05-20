@@ -58,6 +58,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'namespace' => 'Admin','mid
          // List PO
          Route::group(['prefix' => 'po', 'as' => 'po.','middleware' => ['permission:1']], function () {
             Route::get('/', 'PurchasingController@index')->name('index');
+            Route::get('/print/{key}', 'PurchasingController@print')->name('print');
             Route::get('create', 'PurchasingController@create')->name('create');
             Route::post('detail', 'PurchasingController@detail')->name('detail');
             Route::post('store', 'PurchasingController@store')->name('store');

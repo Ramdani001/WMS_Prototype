@@ -13,11 +13,11 @@ class OrderDetail extends Model
 
     public function order()
     {
-        return $this->belongsTo(Order::class, 'nomor_po');
+        return $this->hasOne(Order::class, 'nomor_po', 'nomor_po');
     }
 
     public function barang()
     {
-        return $this->belongsTo(MasterBarang::class, 'kode_barang');
+        return $this->hasOne(MasterBarang::class, 'kode_barang', 'kode_barang');
     }
 }

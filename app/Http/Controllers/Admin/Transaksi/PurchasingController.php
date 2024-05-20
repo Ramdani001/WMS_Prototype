@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Admin\Transaksi;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\OrderDetail;
 use App\Models\Masterbarang;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use DataTables;
+use PDF;
 use Validator;
 
 class PurchasingController extends Controller
@@ -29,22 +31,27 @@ class PurchasingController extends Controller
                 ->addIndexColumn()
                 ->removeColumn('id')
                 ->addColumn('customer', function($val) {
-                    return "Customer";
-                })
-                ->addColumn('harga', function($val) {
-                    return "Harga";
+                    return $val->customer->name;
                 })
                 ->addColumn('status_po', function($val) {
-                    return "Status Po";
+                    if($val->status_po == '1'){
+                        return '<button class="btn btn-primary btn-sm" type="button" title="Baru"><i class="fas fa-clock"></i>&nbsp;Baru</button>';
+                    }else if($val->status_po == '2'){
+                        return '<button class="btn btn-warning btn-sm" type="button" title="Proses"><i class="fas fa-clock"></i>&nbsp;Proses</button>';
+                    }else if($val->status_po == '3'){
+                        return '<button class="btn btn-secondary btn-sm" type="button" title="Pengiriman"><i class="fas fa-truck"></i>&nbsp;Pengiriman</button>';
+                    }else{
+                        return '<button class="btn btn-success btn-sm" type="button" title="Sukses"><i class="fas fa-check"></i>&nbsp;Sukses</button>';
+                    }
                 })
                 ->addColumn('action', function($val) {
-                    $key = encrypt("barang".$val->id);
+                    $key = encrypt("order".$val->id);
                     return '<div class="btn-group">'.
-                                '<button class="btn btn-warning btn-sm btn-edit" data-key="'.$key.'" title="Ubah Data"><i class="fas fa-pen"></i></button>'.
-                                '<button class="btn btn-danger btn-sm btn-delete" data-key="'.$key.'" title="Hapus Data"><i class="fas fa-trash-alt"></i></button>'.
+                                '<a href="'.url('admin/transaksi/po/print', $key).'" class="btn btn-warning btn-sm btn-edit" data-key="'.$key.'" title="Ubah Data"><i class="fas fa-print"></i> Cetak</a>'.
+                                '<button class="btn btn-danger btn-sm btn-delete" data-key="'.$key.'" title="Hapus Data"><i class="fas fa-trash-alt"></i> Hapus</button>'.
                             '</div>';
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['action', 'status_po'])
                 ->make(true);
     }
 
@@ -65,9 +72,6 @@ class PurchasingController extends Controller
                 $key = encrypt("barang".$val->id);
                 $jsonValue = json_encode($val);
                 $base64Value = base64_encode($jsonValue);
-                // return '<div class="d-flex justify-content-center">
-                //             // <input class="form-check-input mt-0" type="checkbox" data-key="'.$key.'" value="'.$key.'" aria-label="Checkbox for following text input">
-                //         </div>';
                 return '<div class="btn-group">'.
                             '<button class="btn btn-primary btn-md btn-primary" data-key="'.$key.'" title="Tambah Data" onclick=appendBarang("'.$base64Value.'") type="button">Pilih</button>'.
                         '</div>';
@@ -92,40 +96,35 @@ class PurchasingController extends Controller
 
     public function store(Request $req)
     {
-        $pwRules = 'nullable';
 
-        dd($req->all());
-      
         $validator = Validator::make($req->input(), [
             'key' => 'nullable|string',
-            'nama_barang' => 'required|string',
-            'kode_barang' => 'required|string',
-            'id_supplier' => 'required|string',
-            'id_gudang' => 'required|string',
-            'stok' => 'required|string',
-            'harga' => 'required|string',
-            'satuan' => 'required|string',
-            'keterangan' => 'required|string',
+            'no_po' => 'required|string',
+            'id_customer' => 'required|string',
         ]);
 
         if ($validator->fails()) {
             return $this->sendError("Error validation", $validator->errors());
         }
 
-        // try {
+        try {
             if(empty($req->key)){
                 // Create Data
-                $data = Masterbarang::create([
-                    'nama_barang' => $req->nama_barang,
-                    'kode_barang' => $req->kode_barang,
-                    'id_supplier' => $req->id_supplier,
-                    'id_gudang' => $req->id_gudang,
-                    'stok' => $req->stok,
-                    'harga' => $req->harga,
-                    'satuan' => $req->satuan,
-                    'keterangan' => $req->keterangan,
+                $data = Order::create([
+                    'nomor_po' => $req->no_po,
+                    'customer_id' => $req->id_customer,
+                    'status_po' => 1,
                 ]);
-                // Save Log
+
+                $barang = $req->detail_barang;
+
+                for($i=0;$i<count($barang);$i++){
+                    $detail = OrderDetail::create([
+                        'nomor_po' => $req->no_po,
+                        'kode_barang' => $barang[$i]["kode_barang"],
+                        'jumlah' => $barang[$i]["jumlah"],
+                    ]);
+                }
             } else {
                 // Validation
                 $key = str_replace("barang", "", decrypt($req->key));
@@ -143,20 +142,18 @@ class PurchasingController extends Controller
                 ]);
             }
             return $this->sendResponse(null, "Berhasil memproses data.");
-        // } catch (ModelNotFoundException $e) {
-        //     return $this->sendError("Data tidak dapat ditemukan.");
-        // } catch (\Throwable $err) {
-        //     return $this->sendError("Kesalahan sistem saat proses penyimpanan data, silahkan hubungi admin");
-        // }
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError("Data tidak dapat ditemukan.");
+        } catch (\Throwable $err) {
+            return $this->sendError("Kesalahan sistem saat proses penyimpanan data, silahkan hubungi admin");
+        }
     }
 
     public function destroy(Request $req)
     {
         try {
-            // Validation
-            $key = str_replace("barang", "", decrypt($req->key));
-            $data = Masterbarang::findOrFail($key);
-            // Delete Process
+            $key = str_replace("order", "", decrypt($req->key));
+            $data = Order::findOrFail($key);
             $data->delete();
             return $this->sendResponse(null, "Berhasil menghapus data.");
         } catch (ModelNotFoundException $e) {
@@ -164,5 +161,16 @@ class PurchasingController extends Controller
         } catch (\Throwable $err) {
             return $this->sendError("Kesalahan sistem saat proses penghapusan data, silahkan hubungi admin");
         }
+    }
+
+    // Cetak/Print PDF
+    public function print($key)
+    {
+        $keys = str_replace("order", "", decrypt($key));
+        $order = Order::select('*')->whereId($keys)->firstOrFail();
+        // return view('admin.transaksi.purchasing.cetak', compact('order'));
+        
+        $pdf = PDF::loadView('admin.transaksi.purchasing.cetak', compact('order'));
+        return $pdf->download('po.pdf');
     }
 }

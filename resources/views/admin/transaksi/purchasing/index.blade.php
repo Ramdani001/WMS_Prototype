@@ -19,13 +19,12 @@
                         <table id="table-data" width="100%" class="table table-bordered table-hover" >
                             <thead>
                                 <tr>
-                                    <th width="40px">No</th>
-                                    <th>Nomor PO</th>
-                                    <th>Customer</th>
-                                    <th>Tanggal</th>
-                                    <th>Status</th>
-                                    <th>Total Harga</th>
-                                    <th width="80px">Aksi</th>
+                                    <th width="40px"><center>No</center></th>
+                                    <th><center>Nomor PO</center></th>
+                                    <th><center>Customer</center></th>
+                                    <th><center>Tanggal</center></th>
+                                    <th><center>Status</center></th>
+                                    <th width="80px"><center>Aksi</center></th>
                                 </tr>
                             </thead>
                         </table>
@@ -56,10 +55,52 @@
                 { data: "customer", name: "customer" },
                 { data: "created_at", name: "created_at" },
                 { data: "status_po", name: "status_po" },
-                { data: "harga", name: "harga" },
                 { data: "action", name: "action", searchable: "false", orderable: "false" }
             ],
             order: [[ 1, "asc" ]],
+        });
+
+        $("body").on("click",".btn-delete",function(){
+            let key = $(this).data("key");
+            swal({
+                title: "Apakah anda yakin?",
+                text: "Data yang dihapus tidak akan bisa dikembalikan!",
+                icon: "warning",
+                buttons:{
+                    cancel: {
+                        visible: true,
+                        text : 'Batal',
+                        className: 'btn btn-danger'
+                    },
+                    confirm: {
+                        text : 'Yakin',
+                        className : 'btn btn-primary'
+                    }
+                }
+            }).then((willDelete) => {
+                if (willDelete) {
+                    notifLoading("Jangan tinggalkan halaman ini sampai proses penghapusan selesai !");
+                    $.ajax({
+                        url: "{{ route('admin.transaksi.po.destroy') }}",
+                        type: "POST",
+                        data: {key:key},
+                        success:function(res){
+                            notif("success","fas fa-check","Notifikasi Progress",res.message,"done");
+                            dt.ajax.reload(null, false);
+                        },
+                        error:function(err, status, message){
+                            response = err.responseJSON;
+                            message = (typeof response != "undefined") ? response.message : message;
+                            notif("danger","fas fa-exclamation","Notifikasi Error",message,"error");
+                        },
+                        complete:function(){
+                            setTimeout(() => {
+                                loadNotif.close();
+                            }, 1000);
+                        }
+                    });
+                }
+            });
         });
     });
 
