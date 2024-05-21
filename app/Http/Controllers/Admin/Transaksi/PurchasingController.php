@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Masterbarang;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Carbon\Carbon;
 use DataTables;
 use PDF;
 use Validator;
@@ -33,21 +34,25 @@ class PurchasingController extends Controller
                 ->addColumn('customer', function($val) {
                     return $val->customer->name;
                 })
+                ->addColumn('created_at', function($val) {
+                    return Carbon::parse($val->created_at)->format('d F Y');
+                })
                 ->addColumn('status_po', function($val) {
+                    $key = encrypt("order".$val->id);
                     if($val->status_po == '1'){
-                        return '<button class="btn btn-primary btn-sm" type="button" title="Baru"><i class="fas fa-clock"></i>&nbsp;Baru</button>';
+                        return '<button class="btn btn-warning btn-sm btn-status" data-key="'.$key.'" type="button" title="Proses"><i class="fas fa-clock"></i>&nbsp;Proses</button>';
                     }else if($val->status_po == '2'){
-                        return '<button class="btn btn-warning btn-sm" type="button" title="Proses"><i class="fas fa-clock"></i>&nbsp;Proses</button>';
+                        return '<button class="btn btn-primary btn-sm btn-status" data-key="'.$key.'" type="button" title="Pengiriman"><i class="fas fa-truck"></i>&nbsp;Pengiriman</button>';
                     }else if($val->status_po == '3'){
-                        return '<button class="btn btn-secondary btn-sm" type="button" title="Pengiriman"><i class="fas fa-truck"></i>&nbsp;Pengiriman</button>';
+                        return '<button class="btn btn-success btn-sm btn-status" data-key="'.$key.'" type="button" title="Selesai"><i class="fas fa-check"></i>&nbsp;Selesai</button>';
                     }else{
-                        return '<button class="btn btn-success btn-sm" type="button" title="Sukses"><i class="fas fa-check"></i>&nbsp;Sukses</button>';
+                        return '<button class="btn btn-danger btn-sm btn-status" data-key="'.$key.'" type="button" title="Dibatalkan / Gagal"><i class="fa fa-close"></i>&nbsp;Dibatalkan / Gagal</button>';
                     }
                 })
                 ->addColumn('action', function($val) {
                     $key = encrypt("order".$val->id);
                     return '<div class="btn-group">'.
-                                '<a href="'.url('admin/transaksi/po/print', $key).'" class="btn btn-warning btn-sm btn-edit" data-key="'.$key.'" title="Ubah Data"><i class="fas fa-print"></i> Cetak</a>'.
+                                '<a href="'.url('admin/transaksi/po/print', $key).'" class="btn btn-secondary btn-sm btn-edit" data-key="'.$key.'" title="Ubah Data"><i class="fas fa-print"></i> Cetak</a>'.
                                 '<button class="btn btn-danger btn-sm btn-delete" data-key="'.$key.'" title="Hapus Data"><i class="fas fa-trash-alt"></i> Hapus</button>'.
                             '</div>';
                 })
@@ -79,20 +84,6 @@ class PurchasingController extends Controller
             ->rawColumns(['action'])
             ->make(true);
     }
-
-    public function detail(Request $req)
-    {
-        try {
-            $key = str_replace("barang", "", decrypt($req->key));
-            $data = Masterbarang::select('*')->whereId($key)->with('supplier')->with('gudang')->firstOrFail();
-            return $this->sendResponse($data, "Berhasil mengambil data.");
-        } catch (ModelNotFoundException $e) {
-            return $this->sendError("Data tidak dapat ditemukan.");
-        } catch (\Throwable $err) {
-            return $this->sendError("Kesalahan sistem saat proses pengambilan data, silahkan hubungi admin.");
-        }
-    }
-
 
     public function store(Request $req)
     {
@@ -154,6 +145,8 @@ class PurchasingController extends Controller
         try {
             $key = str_replace("order", "", decrypt($req->key));
             $data = Order::findOrFail($key);
+            $dataKey = Order::findOrFail($key)->first();
+            OrderDetail::where('nomor_po', $dataKey->nomor_po)->delete();
             $data->delete();
             return $this->sendResponse(null, "Berhasil menghapus data.");
         } catch (ModelNotFoundException $e) {
@@ -173,4 +166,20 @@ class PurchasingController extends Controller
         $pdf = PDF::loadView('admin.transaksi.purchasing.cetak', compact('order'));
         return $pdf->download('po.pdf');
     }
+
+    public function ubahStatus(Request $req)
+    {
+        try {
+            $key = str_replace("order", "", decrypt($req->key));
+            $data = Order::select('*')->whereId($key)->update([
+                'status_po' => $req->status_po,
+            ]);
+            return $this->sendResponse($data, "Berhasil mengambil data.");
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError("Data tidak dapat ditemukan.");
+        } catch (\Throwable $err) {
+            return $this->sendError("Kesalahan sistem saat proses pengambilan data, silahkan hubungi admin.");
+        }
+    }
+
 }
